@@ -17,7 +17,7 @@
 
   <button onclick="callExtractText()">Extract Text</button>
   <button onclick="callSegmentation()">Segmentation</button>
-  <button onclick="callTextOnly()">Text Only (from manual input)</button>
+  <!-- <button onclick="callTextOnly()">Text Only (from manual input)</button> -->
 
   <div id="result" style="margin-top:20px;"></div>
 
@@ -34,10 +34,11 @@
     async function callExtractText() {
       resultDiv.innerHTML = "Processing...";
       const formData = getImageFormData();
-      const response = await fetch('http://127.0.0.1:5000/process/extract_text', {
+      const response = await fetch('http://127.0.0.1:5000/api/ai/extract_text', {
         method: 'POST',
         body: formData
       });
+      console.log(response);
       const data = await response.json();
       resultDiv.innerHTML = `
         <h3>Extracted Text</h3>
@@ -50,7 +51,7 @@
     async function callSegmentation() {
       resultDiv.innerHTML = "Segmenting...";
       const formData = getImageFormData();
-      const response = await fetch('http://127.0.0.1:5000/process/segmentation', {
+      const response = await fetch('http://127.0.0.1:5000/api/ai/segmentation', {
         method: 'POST',
         body: formData
       });
@@ -67,7 +68,7 @@
     async function callTextOnly() {
       const inputText = prompt("Enter text to extract medications:");
       if (!inputText) return;
-      const response = await fetch('http://127.0.0.1:5000/process/process_text', {
+      const response = await fetch('http://127.0.0.1:5000/api/ai/process_text', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: inputText })
