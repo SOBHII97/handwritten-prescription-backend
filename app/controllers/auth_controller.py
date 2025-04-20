@@ -1,17 +1,16 @@
-from flask import Blueprint, request, jsonify
+from flask import request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token
-from app.config import mongo  # متنساش تربطه في config.py
-
-auth_bp = Blueprint('auth', __name__)
-
-# REGISTER
-@auth_bp.route('/register', methods=['POST'])
-def register():
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from app.DB.config import mongo
+from cerberus import Validator
+from app.DB.SCHEMA.user_schema import user_schema
+from datetime import datetime
+def register_controller():
     data = request.get_json()
 
-    if not data.get('email') or not data.get('password'):
-        return jsonify({'error': 'Email and password are required'}), 400
+    validator = Validator(user_schema)
+    if not validator.validate(data):
+        return jsonify({'error': 'Validation failed', 'details': validator.errors}), 400
 
     if mongo.db.users.find_one({'email': data['email']}):
         return jsonify({'error': 'Email already exists'}), 400
@@ -19,11 +18,14 @@ def register():
     hashed_password = generate_password_hash(data['password'])
 
     user = {
-        'email': data['email'],
-        'password': hashed_password,
-        'name': data.get('name'),
-        'phone': data.get('phone')
-    }
+    'email': data['email'],
+    'password': hashed_password,
+    'name': data['name'],
+    'phone': data.get('phone'),
+    'profile_picture': data.get('profile_picture'),
+    'created_at': str(datetime.utcnow()),
+    'updated_at': str(datetime.utcnow())
+}
 
     mongo.db.users.insert_one(user)
 
@@ -36,22 +38,17 @@ def register():
         }
     }), 201
 
-#LOGIN
-@auth_bp.route('/login', methods=['POST'])
-def login():
+
+def login_controller():
     data = request.get_json()
 
     if not data.get('email') or not data.get('password'):
         return jsonify({'error': 'Email and password are required'}), 400
 
     user = mongo.db.users.find_one({'email': data['email']})
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
+    if not user or not check_password_hash(user['password'], data['password']):
+        return jsonify({'error': 'Invalid email or password'}), 401
 
-    if not check_password_hash(user['password'], data['password']):
-        return jsonify({'error': 'Invalid password'}), 401
-    
-    # yrg3 JWT token lw successful login
     access_token = create_access_token(identity=str(user['_id']))
     return jsonify({
         'message': 'Login successful',
@@ -62,3 +59,8 @@ def login():
             'phone': user.get('phone')
         }
     }), 200
+
+
+@jwt_required()
+def logout_controller():
+    return jsonify({'message': 'Logged out successfully (Client should discard token)'}), 200
