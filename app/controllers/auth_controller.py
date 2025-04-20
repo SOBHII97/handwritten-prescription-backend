@@ -1,11 +1,22 @@
 from flask import request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
+<<<<<<< HEAD:app/controllers/auth_controller.py
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app.DB.config import mongo
 from cerberus import Validator
 from app.DB.SCHEMA.user_schema import user_schema
 from datetime import datetime
 def register_controller():
+=======
+from flask_jwt_extended import create_access_token
+from app.config import mongo  
+
+auth_bp = Blueprint('auth', __name__)
+
+# REGISTER
+@auth_bp.route('/register', methods=['POST'])
+def register():
+>>>>>>> 02b84f9da85646972988ab87e03fa562539deb0a:app/routes/auth.py
     data = request.get_json()
 
     validator = Validator(user_schema)
@@ -59,8 +70,11 @@ def login_controller():
             'phone': user.get('phone')
         }
     }), 200
+<<<<<<< HEAD:app/controllers/auth_controller.py
 
 
 @jwt_required()
 def logout_controller():
     return jsonify({'message': 'Logged out successfully (Client should discard token)'}), 200
+=======
+>>>>>>> 02b84f9da85646972988ab87e03fa562539deb0a:app/routes/auth.py
