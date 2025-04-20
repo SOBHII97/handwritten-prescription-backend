@@ -5,7 +5,7 @@ from datetime import datetime
 
 user_schema = {
     "email": {
-        "type": "string",  # ← كده
+        "type": "string",  
         "required": True,
         "regex": r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
     },
@@ -27,7 +27,7 @@ user_schema = {
         "required": False
     },
     "created_at": {
-        "type": "string",  # ← لازم تكون string، مش function
+        "type": "string",  
         "required": False
     },
     "updated_at": {
