@@ -6,6 +6,7 @@ from cerberus import Validator
 from app.DB.SCHEMA.user_schema import user_schema
 from datetime import datetime
 
+
 auth_bp = Blueprint('auth', __name__)
 
 # REGISTER
@@ -42,6 +43,7 @@ def register():
             'phone': user['phone']
         }
     }), 201
+
 
 
 @auth_bp.route('/login', methods=['POST'])
